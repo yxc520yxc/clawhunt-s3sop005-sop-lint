@@ -1,0 +1,10 @@
+OK   examples/SOP_CONTENT_PUBLISH.json
+OK   examples/SOP_CONTRACT_SIGN.json
+OK   examples/SOP_FEEDBACK_CLOSE.json
+OK   examples/SOP_LEAD_ASSIGN.json
+OK   examples/SOP_MEMBER_ONBOARD.json
+OK   examples/SOP_RENEW_REMIND.json
+OK   examples/SOP_TICKET_ESCALATE.json
+OK   examples/valid_template.json
+
+总计 8 文件，全部通过。

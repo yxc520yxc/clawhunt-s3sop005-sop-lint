@@ -1,0 +1,32 @@
+{
+  "repo": "https://github.com/yxc520yxc/clawhunt-s3sop005-sop-lint",
+  "clone": "https://github.com/yxc520yxc/clawhunt-s3sop005-sop-lint.git",
+  "run_url": "https://github.com/yxc520yxc/clawhunt-s3sop005-sop-lint/actions/runs/44854477546",
+  "run_number": 2,
+  "workflow": "Verify S3-SOP-005",
+  "conclusion": "success",
+  "event": "push",
+  "head_sha": "79b14fc",
+  "created_at": "2026-11-21T02:11:00Z",
+  "jobs": {
+    "verify": {
+      "name": "验收测试 (pytest, 逐用例名)",
+      "conclusion": "success",
+      "job_seconds": 13,
+      "pytest_seconds": 2,
+      "pytest_exit": 0,
+      "cases": 5,
+      "result": "5 passed"
+    },
+    "lint": {
+      "name": "sop-lint 自检 (退出码 + 类别覆盖)",
+      "conclusion": "success",
+      "job_seconds": 11,
+      "valid_exit": 0,
+      "errors_exit": 1,
+      "error_categories": ["E001", "E002", "E003", "E004", "E005", "E006", "E007"]
+    }
+  },
+  "artifacts": ["verify-evidence", "lint-evidence"],
+  "note": "run #1 因 workflow YAML 中 heredoc 顶格代码行导致解析失败（无 jobs）；修复为 python -c 后 run #2 全绿。CI 无外部服务依赖，纯 Python 校验 + pytest。"
+}

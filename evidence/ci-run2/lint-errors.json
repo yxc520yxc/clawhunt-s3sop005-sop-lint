@@ -1,0 +1,107 @@
+{
+  "ok": false,
+  "files": [
+    {
+      "file": "errors/E001_schema_invalid.json",
+      "errors": 1,
+      "issues": [
+        {
+          "code": "E001",
+          "severity": "error",
+          "path": "/",
+          "message": "'output_form' is a required property"
+        }
+      ]
+    },
+    {
+      "file": "errors/E002_unknown_role.json",
+      "errors": 1,
+      "issues": [
+        {
+          "code": "E002",
+          "severity": "error",
+          "path": "/steps/0/role_code",
+          "message": "未知岗位编码: ROLE_NOT_IN_CATALOG"
+        }
+      ]
+    },
+    {
+      "file": "errors/E003_invalid_due_rule.json",
+      "errors": 2,
+      "issues": [
+        {
+          "code": "E001",
+          "severity": "error",
+          "path": "/steps/0/due_rule/value",
+          "message": "0 is less than the minimum of 1"
+        },
+        {
+          "code": "E003",
+          "severity": "error",
+          "path": "/steps/0/due_rule/value",
+          "message": "非法 due_rule.value: 0"
+        }
+      ]
+    },
+    {
+      "file": "errors/E004_duplicate_seq.json",
+      "errors": 3,
+      "issues": [
+        {
+          "code": "E004",
+          "severity": "error",
+          "path": "/steps/1/seq",
+          "message": "seq 重复: 1（首次出现在步骤 0）"
+        },
+        {
+          "code": "E006",
+          "severity": "error",
+          "path": "/steps/seq=3/depends_on",
+          "message": "depends_on 引用不存在的步骤 seq: 2"
+        },
+        {
+          "code": "E006",
+          "severity": "error",
+          "path": "/steps/depends_on",
+          "message": "depends_on 存在环: 1 -> 1"
+        }
+      ]
+    },
+    {
+      "file": "errors/E005_unknown_event.json",
+      "errors": 1,
+      "issues": [
+        {
+          "code": "E005",
+          "severity": "error",
+          "path": "/trigger/event_code",
+          "message": "触发事件不在事件目录: EVT_DOES_NOT_EXIST"
+        }
+      ]
+    },
+    {
+      "file": "errors/E006_cyclic_dependency.json",
+      "errors": 1,
+      "issues": [
+        {
+          "code": "E006",
+          "severity": "error",
+          "path": "/steps/depends_on",
+          "message": "depends_on 存在环: 1 -> 3 -> 2 -> 1"
+        }
+      ]
+    },
+    {
+      "file": "errors/E007_invalid_field_path.json",
+      "errors": 1,
+      "issues": [
+        {
+          "code": "E007",
+          "severity": "error",
+          "path": "/trigger/conditions/0/field",
+          "message": "非法字段路径: ctx.not_allowed_field"
+        }
+      ]
+    }
+  ]
+}

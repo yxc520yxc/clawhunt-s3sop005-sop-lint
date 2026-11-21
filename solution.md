@@ -49,4 +49,4 @@
 
 ## 五、下载与验证链接
 
-源码包 `S3-SOP-005-delivery-v1.zip`：37,008 B / 33 个条目（32 个文件列入 SHA256 清单 + MANIFEST.json）。SHA256 与专属下载链接见随附 assets 与 README，均为本单专属命名并带 sharecode，不影响其他工单的公共附件路径。
+源码包 `S3-SOP-005-delivery-v1.zip`：40,299 B / 38 个条目（37 个文件列入 SHA256 清单 + MANIFEST.json，含 CI 实跑证据 evidence/ci-run2/）。SHA256 `ec4cc2a823d6596ac76fea77b15cdb6143fc8d8ca7b38ac692eebf53fa83e0d8`。SHA256 与专属下载链接见随附 assets 与 README，均为本单专属命名并带 sharecode，不影响其他工单的公共附件路径。
