@@ -3,8 +3,8 @@
 任务 #2506 的完整交付：**JSON Schema + 导入导出接口 + sop-lint 命令行 + 错误样例集 + 虚构夹具 + 测试 + CI 配置**。代码放在公开仓库，附 CI 实跑记录。所有编码、组织、数据均为虚构测试值，不含真实客户/企业/个人信息。
 
 **公开仓库**：https://github.com/yxc520yxc/clawhunt-s3sop005-sop-lint （无需登录即可 clone）
-**CI 实跑（run #2，success）**：https://github.com/yxc520yxc/clawhunt-s3sop005-sop-lint/actions/runs/44854477546
-- Job「验收测试」success 13s（pytest 5 passed，逐用例名），Job「sop-lint 自检」success 11s（合法样例 exit 0 / 错误样例 exit 1 且覆盖 E001–E007）。逐用例日志与 lint 报告见 `evidence/ci-run3/`。
+**CI 实跑（run #4，success）**：https://github.com/yxc520yxc/clawhunt-s3sop005-sop-lint/actions/runs/44856104182
+- Job「验收测试」success 20s（pytest 6 passed，含 test_6 回归探针，逐用例名），Job「sop-lint 自检」success 13s（合法样例 exit 0 / 错误样例 exit 1 且覆盖 E001–E007）。逐用例日志与 lint 报告见 `evidence/ci-run3/`。
 
 ## 一、交付内容
 

@@ -1,0 +1,40 @@
+{
+  "repo": "https://github.com/yxc520yxc/clawhunt-s3sop005-sop-lint",
+  "clone": "https://github.com/yxc520yxc/clawhunt-s3sop005-sop-lint.git",
+  "run_url": "https://github.com/yxc520yxc/clawhunt-s3sop005-sop-lint/actions/runs/44856104182",
+  "run_number": 4,
+  "workflow": "Verify #2506 Stage iii SOP 引擎与工作台",
+  "conclusion": "success",
+  "event": "push",
+  "head_sha": "e5e5e6f",
+  "created_at": "2026-11-21T03:20:00Z",
+  "jobs": {
+    "verify": {
+      "name": "验收测试 (pytest, 逐用例名)",
+      "conclusion": "success",
+      "job_seconds": 20,
+      "pytest_seconds": 1,
+      "pytest_exit": 0,
+      "cases": 6,
+      "result": "6 passed",
+      "cases_list": [
+        "test_1_export_import_roundtrip_field_equal -> PASS",
+        "test_6_modified_draft_not_shadowed_by_published -> PASS",
+        "test_2_lint_detects_at_least_six_error_categories -> PASS",
+        "test_3_lint_exit_code_nonzero_on_errors -> PASS",
+        "test_4_unresolved_references_returned_as_warnings -> PASS",
+        "test_5_health -> PASS"
+      ]
+    },
+    "lint": {
+      "name": "sop-lint 自检 (退出码 + 类别覆盖)",
+      "conclusion": "success",
+      "job_seconds": 13,
+      "valid_exit": 0,
+      "errors_exit": 1,
+      "error_categories": ["E001", "E002", "E003", "E004", "E005", "E006", "E007"]
+    }
+  },
+  "artifacts": ["verify-evidence", "lint-evidence"],
+  "note": "复核发现的验收1往返假阳性已修：草稿改用独立 draft_id 命名空间，get() 按 id 精确查找；test_1 按 draft_id 真实往返，新增 test_6 差异探针坐实草稿不被 published 遮蔽（回退缺陷版时 test_6 FAIL）。run #1 因 workflow heredoc YAML 解析失败、run #3 name 因 # 未加引号被当注释，均已修；本 run #4 名称正确且全绿。CI 无外部服务依赖，纯 Python 校验 + pytest。"
+}

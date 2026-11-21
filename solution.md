@@ -3,7 +3,7 @@
 技术栈：Python 3.11+ / JSON Schema (Draft 2020-12) / FastAPI / pytest / jsonschema / GitHub Actions。全部标识与数据均为虚构测试值，不含真实客户/企业/个人信息。
 
 **公开仓库（无需登录可 clone）**：https://github.com/yxc520yxc/clawhunt-s3sop005-sop-lint
-**CI 实跑 run（conclusion=success，run #2）**：https://github.com/yxc520yxc/clawhunt-s3sop005-sop-lint/actions/runs/44854477546
+**CI 实跑 run（conclusion=success，run #4）**：https://github.com/yxc520yxc/clawhunt-s3sop005-sop-lint/actions/runs/44856104182
 
 ## 一、交付物清单
 
@@ -19,7 +19,7 @@
 | CI | `.github/workflows/verify.yml` | 两 job 并行，上传 evidence artifact |
 | CI 实跑证据 | `evidence/ci-run3/` | RUN_META.json + 逐用例日志 + lint 报告 |
 
-## 二、四条验收标准对照（CI run #2 实证）
+## 二、四条验收标准对照（CI run #4 实证）
 
 1. **导出→导入逐字段相等**：`test_1_export_import_roundtrip_field_equal -> PASS`。导出已发布模板→导入为草稿→**按导入返回的 draft_id 再导出草稿本体**，逐顶层字段与整体对象均相等，无 warnings。草稿 id 与业务 code 分属不同命名空间（`draft-<hash>` vs `SOP_*`），真实往返路径被覆盖。另有 `test_6_modified_draft_not_shadowed_by_published -> PASS` 差异探针：导入改过 name/description 的草稿后按 draft_id 导出，断言拿到的正是被修改的草稿本体、且与预置 published 有可见差异——锁定并修复了复核指出的往返假阳性缺陷（详见第六节）。CI 日志见 `evidence/ci-run3/pytest.log`。→ **PASS**。
 
@@ -34,11 +34,11 @@
 ## 三、CI 实跑记录
 
 - 仓库：https://github.com/yxc520yxc/clawhunt-s3sop005-sop-lint （public）
-- Run #2：https://github.com/yxc520yxc/clawhunt-s3sop005-sop-lint/actions/runs/44854477546 （conclusion=success，event=push，head=79b14fc）
-- Job「验收测试 (pytest, 逐用例名)」：**success，13s**；pytest 2s / exit 0 / 5 passed；上传 artifact `verify-evidence`（pytest.log + timings.txt）。
-- Job「sop-lint 自检 (退出码 + 类别覆盖)」：**success，11s**；合法样例 exit 0、错误样例 exit 1 且覆盖 7 类；上传 artifact `lint-evidence`（lint-valid.log + lint-errors.json）。
+- Run #4：https://github.com/yxc520yxc/clawhunt-s3sop005-sop-lint/actions/runs/44856104182 （conclusion=success，event=push，head=e5e5e6f，workflow=Verify #2506 Stage iii SOP 引擎与工作台）
+- Job「验收测试 (pytest, 逐用例名)」：**success，20s**；pytest 1s / exit 0 / 6 passed（含 test_6 回归探针）；上传 artifact `verify-evidence`（pytest.log + timings.txt）。
+- Job「sop-lint 自检 (退出码 + 类别覆盖)」：**success，13s**；合法样例 exit 0、错误样例 exit 1 且覆盖 7 类；上传 artifact `lint-evidence`（lint-valid.log + lint-errors.json）。
 - 两 job 并行，均远低于任务约定的时间上限。CI 纯 Python、无外部服务依赖。
-- 说明：run #1 因 workflow YAML 中 heredoc 顶格代码行导致解析失败（GitHub 未识别 jobs）；已改为 `python -c` 单行断言，run #2 全绿。
+- 说明：run #1 因 workflow YAML 中 heredoc 顶格代码行导致解析失败（GitHub 未识别 jobs），已改为 `python -c` 单行断言；run #3 因 workflow 名称中 `#` 未加引号被 YAML 当注释（名称显示 `Verify`），已加引号；本 run #4 名称正确且两 job 全绿。
 
 ## 四、依赖、对接点与可重复性
 
