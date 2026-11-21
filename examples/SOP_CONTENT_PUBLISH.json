@@ -1,0 +1,105 @@
+{
+  "schema_version": "1.0",
+  "code": "SOP_CONTENT_PUBLISH",
+  "name": "内容发布审核",
+  "description": "虚构示例：从商机分派到会员正式入驻的标准流程。",
+  "trigger": {
+    "event_code": "EVT_CONTENT_PUBLISH",
+    "conditions": [
+      {
+        "field": "ctx.member_level",
+        "op": "in",
+        "value": [
+          "GOLD"
+        ]
+      }
+    ]
+  },
+  "steps": [
+    {
+      "seq": 1,
+      "code": "STEP_VERIFY",
+      "title": "资质核验",
+      "role_code": "ROLE_SERVICE",
+      "due_rule": {
+        "kind": "after_trigger",
+        "value": 2,
+        "unit": "hour"
+      },
+      "depends_on": [],
+      "doc_codes": [
+        "DOC_ONBOARD_GUIDE"
+      ]
+    },
+    {
+      "seq": 2,
+      "code": "STEP_CONTRACT",
+      "title": "合同签署",
+      "role_code": "ROLE_LEGAL",
+      "due_rule": {
+        "kind": "after_prev_step",
+        "value": 1,
+        "unit": "day"
+      },
+      "depends_on": [
+        1
+      ],
+      "condition": {
+        "field": "form.sign_type",
+        "op": "eq",
+        "value": "ELECTRONIC"
+      },
+      "doc_codes": [
+        "DOC_CONTRACT_TPL"
+      ]
+    },
+    {
+      "seq": 3,
+      "code": "STEP_ARCHIVE",
+      "title": "资料归档",
+      "role_code": "ROLE_ADMIN",
+      "due_rule": {
+        "kind": "after_prev_step",
+        "value": 1,
+        "unit": "day"
+      },
+      "depends_on": [
+        2
+      ]
+    }
+  ],
+  "output_form": [
+    {
+      "key": "member_code",
+      "label": "会员编号",
+      "type": "string",
+      "required": true
+    },
+    {
+      "key": "sign_type",
+      "label": "签署方式",
+      "type": "enum",
+      "options": [
+        "ELECTRONIC",
+        "PAPER"
+      ],
+      "required": true
+    }
+  ],
+  "checks": [
+    {
+      "code": "CHK_CONTRACT",
+      "description": "合同已签署",
+      "check_type": "attachment",
+      "expr": "form.sign_type"
+    }
+  ],
+  "assets": [
+    {
+      "code": "ASSET_GUIDE",
+      "name": "入驻指引",
+      "media_type": "application/pdf",
+      "doc_code": "DOC_ONBOARD_GUIDE"
+    }
+  ]
+}

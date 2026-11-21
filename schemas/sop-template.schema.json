@@ -1,0 +1,193 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/sop/sop-template.schema.json",
+  "title": "SOP 模板 JSON Schema",
+  "description": "会员空间平台 SOP 引擎的模板交换格式。用于七个首批 SOP 配置文件及导入导出接口、sop-lint 命令的格式标准。所有标识均为虚构示例，不含真实客户信息。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "code", "name", "trigger", "steps", "output_form", "checks", "assets"],
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "description": "交换格式版本，固定为 1.0"
+    },
+    "code": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9_]{1,31}$",
+      "description": "模板编码，大写字母/数字/下划线"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "description": {
+      "type": "string"
+    },
+    "trigger": {
+      "$ref": "#/$defs/trigger"
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/step" }
+    },
+    "output_form": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/form_field" }
+    },
+    "checks": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/check" }
+    },
+    "assets": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/asset" }
+    }
+  },
+  "$defs": {
+    "trigger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["event_code", "conditions"],
+      "properties": {
+        "event_code": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]{1,63}$",
+          "description": "触发事件编码，须属于事件目录"
+        },
+        "conditions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/condition" }
+        }
+      }
+    },
+    "condition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["field", "op", "value"],
+      "properties": {
+        "field": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*(\\.[a-z_][a-z0-9_]*){0,4}$",
+          "description": "字段路径，小写点分，最多 5 段"
+        },
+        "op": {
+          "enum": ["eq", "ne", "gt", "gte", "lt", "lte", "in", "not_in", "exists", "not_exists"]
+        },
+        "value": {}
+      }
+    },
+    "due_rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "value", "unit"],
+      "properties": {
+        "kind": {
+          "enum": ["after_trigger", "after_prev_step", "calendar"],
+          "description": "时限基准类型"
+        },
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "时限数值，正整数"
+        },
+        "unit": {
+          "enum": ["minute", "hour", "day", "business_day"],
+          "description": "时限单位"
+        }
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["seq", "code", "title", "role_code", "due_rule", "depends_on"],
+      "properties": {
+        "seq": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "步骤序号，同模板内不可重复"
+        },
+        "code": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]{1,63}$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "role_code": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]{1,63}$",
+          "description": "岗位编码，须属于岗位目录"
+        },
+        "due_rule": { "$ref": "#/$defs/due_rule" },
+        "depends_on": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 1 },
+          "uniqueItems": true,
+          "description": "依赖的步骤 seq 列表，须构成有向无环图"
+        },
+        "condition": { "$ref": "#/$defs/condition" },
+        "doc_codes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "关联知识文档编码，解析不到的进 warnings"
+        }
+      }
+    },
+    "form_field": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "label", "type"],
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "输出表单字段键"
+        },
+        "label": { "type": "string", "minLength": 1 },
+        "type": {
+          "enum": ["string", "integer", "number", "boolean", "date", "datetime", "enum", "text"]
+        },
+        "required": { "type": "boolean" },
+        "options": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "description", "check_type"],
+      "properties": {
+        "code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]{1,63}$" },
+        "description": { "type": "string", "minLength": 1 },
+        "check_type": {
+          "enum": ["presence", "value_range", "cross_field", "attachment", "manual"]
+        },
+        "expr": {
+          "type": "string",
+          "description": "可选的条件表达式，字段路径须合法"
+        }
+      }
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "name", "media_type"],
+      "properties": {
+        "code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]{1,63}$" },
+        "name": { "type": "string", "minLength": 1 },
+        "media_type": { "type": "string", "minLength": 1 },
+        "doc_code": {
+          "type": "string",
+          "description": "来源知识文档编码，解析不到的进 warnings"
+        }
+      }
+    }
+  }
+}
