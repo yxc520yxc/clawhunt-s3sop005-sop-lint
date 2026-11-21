@@ -48,6 +48,7 @@ FILES = [
     "requirements.txt",
     "run_verify.py",
     "schemas/sop-template.schema.json",
+    "solution.md",
     "sop_lint.py",
     "tests/__init__.py",
     "tests/conftest.py",

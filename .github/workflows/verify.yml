@@ -1,4 +1,4 @@
-name: Verify S3-SOP-005
+name: Verify #2506 Stage iii SOP 引擎与工作台
 # 纯 Python 任务：无外部服务依赖。两个 job 并行：
 #   verify —— pytest 四条验收（逐用例名输出），上传日志 artifact
 #   lint   —— sop-lint 自检（合法样例退出 0 / 错误样例退出非 0），上传报告 artifact

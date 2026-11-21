@@ -8,6 +8,7 @@
 """
 from __future__ import annotations
 
+import copy
 import json
 import subprocess
 import sys
@@ -18,7 +19,7 @@ from fastapi.testclient import TestClient
 
 from app.api import app
 from app.lint import lint_doc, load_schema
-from app.store import SAMPLE_TEMPLATE
+from app.store import SAMPLE_TEMPLATE, STORE
 from jsonschema import Draft202012Validator
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -29,6 +30,12 @@ CLIENT = TestClient(app)
 
 # ---------- 验收 1：往返逐字段相等 ----------
 def test_1_export_import_roundtrip_field_equal():
+    """真实往返：导出 →（作为草稿）导入 → 按 draft_id 再导出。
+
+    用导入响应返回的 draft_id 回读草稿本体，而不是用业务 code 回读已发布样例——
+    后者会被预置 published 遮蔽，使断言与导入内容无关（复核发现的假阳性）。
+    """
+    STORE.reset()
     code = SAMPLE_TEMPLATE["code"]
     r = CLIENT.get(f"/api/sop/templates/{code}/export")
     assert r.status_code == 200, r.text
@@ -39,15 +46,50 @@ def test_1_export_import_roundtrip_field_equal():
     imported = rr.json()
     assert imported["status"] == "imported_as_draft"
     assert imported["warnings"] == [], imported["warnings"]
+    draft_id = imported["draft_id"]
+    assert draft_id != code, "草稿 id 必须与已发布业务 code 分离"
+    assert imported["template"] == exported, "导入响应正文须与提交内容逐字段相等"
 
-    # 重新导出草稿，逐字段完全相等
-    r2 = CLIENT.get(f"/api/sop/templates/{code}/export")
-    assert r2.status_code == 200
+    # 按 draft_id 回读草稿本体（真实往返路径）
+    r2 = CLIENT.get(f"/api/sop/templates/{draft_id}/export")
+    assert r2.status_code == 200, r2.text
     reexported = r2.json()
-    assert reexported == exported, "导出→导入→再导出 不是逐字段相等"
-    # 显式逐顶层字段核对（比整体相等更细粒度）
+    assert reexported == exported, "导出→导入→按 draft_id 再导出 不是逐字段相等"
     for key in exported:
         assert reexported[key] == exported[key], f"字段漂移: {key}"
+
+
+# ---------- 回归探针：坐实往返假阳性缺陷已修 ----------
+def test_6_modified_draft_not_shadowed_by_published():
+    """差异探针：导入一个改过 name/description 的草稿，按 draft_id 导出。
+
+    修复前 get() 以业务 code 优先，草稿被同 code 的 published 遮蔽，导出拿到
+    原始样例（改过的草稿无法导出）。此测试锁定该回归：必须返回草稿本体，
+    且与预置 published 有可见差异。
+    """
+    STORE.reset()
+    code = SAMPLE_TEMPLATE["code"]
+    modified = copy.deepcopy(SAMPLE_TEMPLATE)
+    modified["name"] = "【往返探针】改名后的草稿"
+    modified["description"] = "【往返探针】此描述仅存在于导入草稿，published 中没有"
+    assert modified != SAMPLE_TEMPLATE  # 确保差异真实存在
+
+    rr = CLIENT.post("/api/sop/templates/import", json={"template": modified})
+    assert rr.status_code == 200, rr.text
+    draft_id = rr.json()["draft_id"]
+
+    # 按草稿 id 导出：必须等于被修改的草稿本体
+    got = CLIENT.get(f"/api/sop/templates/{draft_id}/export")
+    assert got.status_code == 200, got.text
+    assert got.json() == modified, "按 draft_id 导出未返回导入的草稿本体"
+    assert got.json()["name"] == modified["name"]
+    # 关键：不得等于预置 published（这才是原缺陷——假阳性来源）
+    assert got.json() != SAMPLE_TEMPLATE, "导出仍命中 published，往返假阳性未修"
+    assert got.json()["name"] != SAMPLE_TEMPLATE["name"]
+
+    # 业务 code 仍导出原始 published，两条路径互不干扰
+    pub = CLIENT.get(f"/api/sop/templates/{code}/export")
+    assert pub.status_code == 200 and pub.json() == SAMPLE_TEMPLATE
 
 
 # ---------- 验收 2：≥6 类错误，每类一个样例文件 ----------

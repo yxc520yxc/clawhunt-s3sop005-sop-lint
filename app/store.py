@@ -6,6 +6,8 @@
 from __future__ import annotations
 
 import copy
+import hashlib
+import json
 
 SAMPLE_TEMPLATE: dict = {
     "schema_version": "1.0",
@@ -67,20 +69,39 @@ SAMPLE_TEMPLATE: dict = {
 
 
 class TemplateStore:
+    """模板仓储：已发布模板与导入草稿使用互不重叠的 id 空间。
+
+    - 已发布模板以业务 code 为 key（如 SOP_MEMBER_ONBOARD）。
+    - 导入草稿以 draft_id 为 key，形如 ``draft-<12位十六进制>``，由模板内容
+      确定性派生（同一内容重复导入得到同一 id，幂等），因此绝不会与业务
+      code 碰撞。
+    - get() 按 id 精确查找，不再用 ``published.get(id) or drafts.get(id)``
+      的回退写法——该写法会让与已发布同 code 的草稿被 published 遮蔽，
+      导致"导出→导入→再导出"读写的是同一份预置数据（往返假阳性）。
+    """
+
     def __init__(self) -> None:
         self._published: dict[str, dict] = {
             SAMPLE_TEMPLATE["code"]: copy.deepcopy(SAMPLE_TEMPLATE),
         }
         self._drafts: dict[str, dict] = {}
 
+    @staticmethod
+    def make_draft_id(doc: dict) -> str:
+        canonical = json.dumps(doc, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+        return "draft-" + hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:12]
+
     def get(self, template_id: str) -> dict | None:
-        doc = self._published.get(template_id) or self._drafts.get(template_id)
+        # 精确查找：草稿 id 与已发布 code 分属不同命名空间，互不遮蔽。
+        doc = self._drafts.get(template_id)
+        if doc is None:
+            doc = self._published.get(template_id)
         return copy.deepcopy(doc) if doc is not None else None
 
     def save_draft(self, doc: dict) -> str:
-        code = doc["code"]
-        self._drafts[code] = copy.deepcopy(doc)
-        return code
+        draft_id = self.make_draft_id(doc)
+        self._drafts[draft_id] = copy.deepcopy(doc)
+        return draft_id
 
     def reset(self) -> None:
         self._drafts.clear()
