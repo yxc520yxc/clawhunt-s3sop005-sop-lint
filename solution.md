@@ -17,13 +17,13 @@
 | 虚构目录 | `app/catalog.py` | 岗位/知识文档/事件类型字典（解析依据） |
 | 测试 | `tests/test_acceptance.py` | 四条验收 + 健康检查（逐用例名输出） |
 | CI | `.github/workflows/verify.yml` | 两 job 并行，上传 evidence artifact |
-| CI 实跑证据 | `evidence/ci-run3/` | RUN_META.json + 逐用例日志 + lint 报告 |
+| CI 实跑证据 | `evidence/ci-run4/` | RUN_META.json + 逐用例日志 + lint 报告 |
 
 ## 二、四条验收标准对照（CI run #4 实证）
 
-1. **导出→导入逐字段相等**：`test_1_export_import_roundtrip_field_equal -> PASS`。导出已发布模板→导入为草稿→**按导入返回的 draft_id 再导出草稿本体**，逐顶层字段与整体对象均相等，无 warnings。草稿 id 与业务 code 分属不同命名空间（`draft-<hash>` vs `SOP_*`），真实往返路径被覆盖。另有 `test_6_modified_draft_not_shadowed_by_published -> PASS` 差异探针：导入改过 name/description 的草稿后按 draft_id 导出，断言拿到的正是被修改的草稿本体、且与预置 published 有可见差异——锁定并修复了复核指出的往返假阳性缺陷（详见第六节）。CI 日志见 `evidence/ci-run3/pytest.log`。→ **PASS**。
+1. **导出→导入逐字段相等**：`test_1_export_import_roundtrip_field_equal -> PASS`。导出已发布模板→导入为草稿→**按导入返回的 draft_id 再导出草稿本体**，逐顶层字段与整体对象均相等，无 warnings。草稿 id 与业务 code 分属不同命名空间（`draft-<hash>` vs `SOP_*`），真实往返路径被覆盖。另有 `test_6_modified_draft_not_shadowed_by_published -> PASS` 差异探针：导入改过 name/description 的草稿后按 draft_id 导出，断言拿到的正是被修改的草稿本体、且与预置 published 有可见差异——锁定并修复了复核指出的往返假阳性缺陷（详见第六节）。CI 日志见 `evidence/ci-run4/pytest.log`。→ **PASS**。
 
-2. **sop-lint 识别 ≥6 类错误、每类一个样例**：`test_2_lint_detects_at_least_six_error_categories -> PASS`。7 个样例文件命中 E001(schema 非法) / E002(岗位编码不存在) / E003(due_rule 非法) / E004(seq 重复) / E005(触发事件不在目录) / E006(depends_on 有环) / E007(条件字段路径非法) 全部 7 类。CI `evidence/ci-run3/lint-errors.json` 实测 codes=`['E001'…'E007']`。→ **PASS**。
+2. **sop-lint 识别 ≥6 类错误、每类一个样例**：`test_2_lint_detects_at_least_six_error_categories -> PASS`。7 个样例文件命中 E001(schema 非法) / E002(岗位编码不存在) / E003(due_rule 非法) / E004(seq 重复) / E005(触发事件不在目录) / E006(depends_on 有环) / E007(条件字段路径非法) 全部 7 类。CI `evidence/ci-run4/lint-errors.json` 实测 codes=`['E001'…'E007']`。→ **PASS**。
 
 3. **有错误时退出码非 0**：`test_3_lint_exit_code_nonzero_on_errors -> PASS`。单文件 E002 与错误样例目录均返回非 0，合法样例返回 0；CI 的 lint job 用 `test $RC -ne 0` 与合法样例 exit 0 双向断言，两步均 success。→ **PASS**。
 
@@ -64,4 +64,4 @@
 
 ## 六、下载与验证链接
 
-源码包 `S3-SOP-005-delivery-v1.zip`：条目数与逐文件 SHA256 清单见 `MANIFEST.json`；包字节数、条目数与包级 SHA256 见随附 `package-info.json`（打包后生成，故正文不硬编码，避免自引用导致哈希漂移）。包内含 39 个条目（38 个文件列入 SHA256 清单 + MANIFEST.json，含本 `solution.md` 与 CI 实跑证据 `evidence/ci-run3/`）。专属下载链接见随附 assets，均为本单专属命名并带 sharecode，不影响其他工单的公共附件路径。
+源码包 `S3-SOP-005-delivery-v1.zip`：条目数与逐文件 SHA256 清单见随包 `MANIFEST.json`；包内含 39 个条目（38 个文件列入 SHA256 清单 + MANIFEST.json，含本 `solution.md` 与 CI 实跑证据 `evidence/ci-run4/`）。包字节数与包级 SHA256 在提交时随附的 assets 中给出（提交载荷的一部分，不在源码包内，避免自引用导致哈希漂移）。专属下载链接见随附 assets，均为本单专属命名并带 sharecode，不影响其他工单的公共附件路径。
