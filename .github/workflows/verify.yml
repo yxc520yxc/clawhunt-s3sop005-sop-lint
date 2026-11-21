@@ -54,14 +54,7 @@ jobs:
           set -e
           echo "LINT_ERRORS_EXIT=$RC"
           test $RC -ne 0
-          python - <<'PY'
-import json
-d = json.load(open('evidence/lint-errors.json', encoding='utf-8'))
-codes = {i['code'] for f in d['files'] for i in f['issues'] if i['severity'] == 'error'}
-need = {'E001','E002','E003','E004','E005','E006','E007'}
-print('detected:', sorted(codes))
-assert need.issubset(codes), need - codes
-PY
+          python -c "import json; d=json.load(open('evidence/lint-errors.json',encoding='utf-8')); codes={i['code'] for f in d['files'] for i in f['issues'] if i['severity']=='error'}; need={'E001','E002','E003','E004','E005','E006','E007'}; print('detected:', sorted(codes)); assert need.issubset(codes), need-codes"
       - uses: actions/upload-artifact@v4
         if: always()
         with: { name: lint-evidence, path: evidence/ }

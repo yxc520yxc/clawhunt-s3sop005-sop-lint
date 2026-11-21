@@ -1,9 +1,9 @@
 {
   "package": "S3-SOP-005-delivery-v1.zip",
-  "generated_at": "2026-11-21T01:24:11.702454+00:00",
+  "generated_at": "2026-11-21T02:11:08.888063+00:00",
   "source": "F:\\ClawHunt交付-20261119\\2506-SOP模板JSON规范与sop-lint",
-  "bytes": 37018,
-  "sha256": "3e79f71d52fe4e9a6b53055ea14f5115e82e40a7a35e73364ebe528a8182608e",
+  "bytes": 37008,
+  "sha256": "63748c91ec92a5938087b60ee5a58a1c986f3d51c57a015f6efb025944dff6e7",
   "zip_entries": 33,
   "hashed_files": 32,
   "entries": [
